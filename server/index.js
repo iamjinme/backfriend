@@ -1,6 +1,7 @@
 import 'babel-polyfill';
-import bodyParser from 'koa-bodyparser'
-import logger from 'koa-logger'
+import bodyParser from 'koa-bodyparser';
+import logger from 'koa-logger';
+import mongoose from 'mongoose';
 import Koa from 'koa';
 
 var app = new Koa();
