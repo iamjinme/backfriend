@@ -12,8 +12,12 @@ mongoose.connection.on('error', console.error);
 var app = new Koa();
 
 app
-  .use(logger())
-  .use(bodyParser())
+  .use(logger()) // Log middleware
+  .use(bodyParser()) // Parse JSON body request
+	.use(async function(ctx, next) { // Print ctx in any request
+    console.log(ctx);
+    return await next();
+  })
 
 	// Response
 	app.use(ctx => {
