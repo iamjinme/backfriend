@@ -10,4 +10,4 @@ const User = new Schema({
 	friends: Array
 });
 
-export default mongoose.model('User', citySchema)
+export default mongoose.model('User', User)
