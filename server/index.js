@@ -3,7 +3,8 @@ import bodyParser from 'koa-bodyparser';
 import logger from 'koa-logger';
 import mongoose from 'mongoose';
 import Router from 'koa-router';
-import { port, mongodbUri } from './config'
+import jwt from 'koa-jwt';
+import { port, mongodbUri, secretKey } from './config'
 import routing from './routes';
 import Koa from 'koa';
 
@@ -23,6 +24,7 @@ app
     console.log(ctx);
     return await next();
   })
+	.use(jwt({ secret: secretKey }).unless({ path: ['/api/signin', '/api/signup', '/'] }))
 	.use(router.routes()) // Assigns routes
 	.use(router.allowedMethods())
 
