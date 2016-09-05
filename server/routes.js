@@ -51,20 +51,37 @@ export default router => {
   router.post('/user/:id/follow', async(ctx) => {
     var token = ctx.headers.authorization.replace('Bearer ','');
     var me = jwt.decode(token);
-    var friend = ctx.params.id;
-    const user = await User.findById(me.id);
-    if (user) {
-      var pos = user.friends.indexOf(friend);
-      if (pos < 0) {
-        user.friends.push(friend);
-        user.save();
+    const follow = await User.findById(ctx.params.id);
+    if (follow) {
+      const user = await User.findById(me.id);
+      if (user) {
+        // Check follow
+        var pos = user.follows.indexOf(follow._id);
+        if (pos < 0) {
+          user.follows.push(follow._id);
+          // Check friendship
+          var pos = follow.follows.indexOf(user._id);
+          if (pos >= 0) {
+            user.friends.push(follow._id);
+            follow.friends.push(user._id);
+            // Save Follow
+            follow.save();
+          }
+          // Save User
+          user.save();
+        }
+        // Response user_id, follow_id, and follows length
+        ctx.body = { id: user._id, follow: follow._id, followings: user.follows.length };
+      } else {
+        ctx.status = 404;
+        ctx.body = { error: true, message: 'User not found' };
       }
-      ctx.body = { id: user._id, friend: friend, friends: user.friends.length };
     } else {
       ctx.status = 404;
-      ctx.body = { error: true, message: 'User not found' };
+      ctx.body = { error: true, message: 'Follower not found' };
     }
   });
+
 
 
   return router;
