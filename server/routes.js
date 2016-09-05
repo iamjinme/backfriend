@@ -26,5 +26,17 @@ export default router => {
   router.get('/user', async(ctx) =>
     ctx.body = await User.find());
 
+  // POST /api/user/:id/friends
+  router.post('/user/:id/friends', async(ctx) => {
+    const user = await User.findById(ctx.params.id);
+    if (user) {
+      // TODO: Save friend
+      ctx.body = user;
+    } else {
+      ctx.status = 401;
+      ctx.body = { error: true, message: 'Friend not found' };
+    }
+  });
+
   return router;
 }
