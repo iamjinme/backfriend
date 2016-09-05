@@ -6,6 +6,7 @@ const User = new Schema({
 	name: String,
 	username: String,
 	password: String,
+  token: String,
 	date: Date,
 	friends: Array
 });
