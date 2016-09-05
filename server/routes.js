@@ -16,11 +16,15 @@ export default router => {
     if (!credentials || credentials.name !== 'john' || credentials.pass !== 'secret') {
       ctx.status = 401
       ctx.response.set('WWW-Authenticate', 'Basic realm="backfriend"')
-      ctx.body = 'Access denied';
+      ctx.body = { error: true, message: 'Access denied' };
     } else {
-      ctx.body = 'Access granted';
+      ctx.body = { success: true, message: 'Access granted' };
     }
   });
+
+  // GET /api/user
+  router.get('/user', async(ctx) =>
+    ctx.body = await User.find());
 
   return router;
 }
