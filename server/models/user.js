@@ -7,6 +7,7 @@ const User = new Schema({
 	username: String,
 	password: String,
 	date: Date,
+  follows: Array,
 	friends: Array
 });
 
