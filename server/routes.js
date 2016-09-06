@@ -104,5 +104,9 @@ export default router => {
     }
   });
 
+  // GET All posts
+  router.get('/post', async(ctx) =>
+    ctx.body = await Post.aggregate({ $project: { _id: 1, body: 1, author: 1, date: 1, comments: {$size:'$comments'}}});
+
   return router;
 }
