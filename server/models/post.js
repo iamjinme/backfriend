@@ -4,7 +4,7 @@ const Schema = mongoose.Schema
 
 const Comments = new Schema({
   author: {
-    id: ObjectId,
+    id: Schema.Types.ObjectId,
     username: String
   },
   text: String,
@@ -13,7 +13,7 @@ const Comments = new Schema({
 
 const Post = new Schema({
 	author: {
-    id: ObjectId,
+    id: Schema.Types.ObjectId,
     username: String
   },
 	title: String,
