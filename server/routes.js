@@ -2,6 +2,7 @@ import auth from 'basic-auth';
 import jwt from 'koa-jwt';
 import sha1 from 'sha1';
 import User from './models/user';
+import Post from './models/post';
 import { baseApi, secretKey } from './config';
 // Export a function that takes the router
 export default router => {
@@ -104,9 +105,30 @@ export default router => {
     }
   });
 
-  // GET All posts
+  // GET All Posts
   router.get('/post', async(ctx) =>
-    ctx.body = await Post.aggregate({ $project: { _id: 1, body: 1, author: 1, date: 1, comments: {$size:'$comments'}}});
+    ctx.body = await Post.aggregate({
+      $project: {
+        _id: 1,
+        body: 1,
+        author: 1,
+        date: 1,
+        comments: {
+          $size:'$comments'
+        }
+      }
+    }));
+
+  // POST One Post
+  router.post('/post', async(ctx) => {
+    var token = ctx.headers.authorization.replace('Bearer ','');
+    var me = jwt.decode(token);
+    var post = ctx.request.body;
+    post.author = { id: me.id, username: me.username };
+    post.date = new Date();
+    ctx.body = await new Post(post).save();
+  });
+
 
   return router;
 }
