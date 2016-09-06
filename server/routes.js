@@ -129,6 +129,33 @@ export default router => {
     ctx.body = await new Post(post).save();
   });
 
+  // POST Comment
+  router.post('/post/:id/comment', async(ctx) => {
+    var token = ctx.headers.authorization.replace('Bearer ','');
+    var me = jwt.decode(token);
+    const post = await Post.findById(ctx.params.id);
+    if (post) {
+      // Check friendship
+      const user = await User.findById(me.id);
+      var pos = user.friends.indexOf(post.author.id);
+      if (pos >= 0) {
+        // Add info to comment
+        var comment = ctx.request.body;
+        comment.author = { id: me.id, username: me.username };
+        comment.date = new Date();
+        post.comments.push(comment);
+        // Save comment and response
+        post.save();
+        ctx.body = comment;
+      } else {
+        ctx.status = 401;
+        ctx.body = { error: true, message: 'Friendship not found' }; // Funny ;)
+      }
+    } else {
+      ctx.status = 404;
+      ctx.body = { error: true, message: 'Post not found' };
+    }
+  });
 
   return router;
 }
