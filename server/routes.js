@@ -136,8 +136,14 @@ export default router => {
     const post = await Post.findById(ctx.params.id);
     if (post) {
       // Check friendship
+      var pos = null;
       const user = await User.findById(me.id);
-      var pos = user.friends.indexOf(post.author.id);
+      if (post.author.id.equals(user._id)) {
+        // Owner of Post
+        pos = 0;
+      } else {
+        pos = user.friends.indexOf(post.author.id);
+      }
       if (pos >= 0) {
         // Add info to comment
         var comment = ctx.request.body;
@@ -151,6 +157,28 @@ export default router => {
         ctx.status = 401;
         ctx.body = { error: true, message: 'Friendship not found' }; // Funny ;)
       }
+    } else {
+      ctx.status = 404;
+      ctx.body = { error: true, message: 'Post not found' };
+    }
+  });
+
+  // GET Comments of any Post
+  router.get('/post/:id/comment', async(ctx) => {
+    var token = ctx.headers.authorization.replace('Bearer ','');
+    var me = jwt.decode(token);
+    const post = await Post.findById(ctx.params.id);
+    if (post) {
+      const user = await User.findById(me.id);
+      // Filter, only friends
+      var comments = post.comments;
+      var friends = user.friends;
+      // Add user id to friends array validation
+      friends.push(user._id)
+      // Response filter comments
+      ctx.body = await comments.filter(function(comment) {
+        return friends.indexOf(comment.author.id) >= 0;
+      });
     } else {
       ctx.status = 404;
       ctx.body = { error: true, message: 'Post not found' };
