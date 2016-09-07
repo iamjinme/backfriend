@@ -1,5 +1,5 @@
 import 'babel-polyfill';
-import bodyParser from 'koa-bodyparser';
+import koaBody from 'koa-body';
 import logger from 'koa-logger';
 import mongoose from 'mongoose';
 import serve from 'koa-static';
@@ -17,18 +17,23 @@ mongoose.connection.on('error', console.error);
 const router = routing(Router());
 // Create the app
 var app = new Koa();
-console.log(__dirname);
 
 app
-  .use(logger()) // Logger middleware
-  .use(bodyParser()) // Parse JSON body request
-	.use(async function(ctx, next) { // Print ctx in any request
+	// Logger middleware
+  .use(logger())
+	// Parse JSON body request
+	.use(koaBody({ multipart: true, formidable:{ uploadDir: __dirname + '/uploads', multiples: false }}))
+	// Print ctx in any request
+	.use(async function(ctx, next) { 
     console.log(ctx);
     return await next();
   })
+	// Serve static files (images uploaded)
 	.use(serve(__dirname + '/uploads'))
+	// JSON Web Tokens (Auth Bearer, except path urls)
 	.use(jwt({ secret: secretKey }).unless({ path: ['/api/signin', '/api/signup', '/', new RegExp('/uploads.*/', 'i')] }))
-	.use(router.routes()) // Assigns routes
+	// Assigns routes
+	.use(router.routes())
 	.use(router.allowedMethods())
 
 	// Response
