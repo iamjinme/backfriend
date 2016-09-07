@@ -4,6 +4,7 @@ import sha1 from 'sha1';
 import User from './models/user';
 import Post from './models/post';
 import { baseApi, secretKey } from './config';
+
 // Export a function that takes the router
 export default router => {
   // Set a prefix of our api, in this case api
@@ -122,9 +123,22 @@ export default router => {
   // POST One Post
   router.post('/post', async(ctx) => {
     var token = ctx.headers.authorization.replace('Bearer ','');
-    var me = jwt.decode(token);
+    var me = jwt.decode(token); // Decode user
     var post = ctx.request.body;
+    // Has image file?
+    var name = '';
+    if (post.hasOwnProperty('files')) {
+      if (post.files.hasOwnProperty('image')) {
+        name = post.files.image.path.replace(__dirname + '/uploads/','');
+      }
+    }
+    // Is a multipart/form-data?
+    if (post.hasOwnProperty('fields')) {
+      post = post.fields;
+    }
+    // Complete information
     post.author = { id: me.id, username: me.username };
+    post.image = name;
     post.date = new Date();
     ctx.body = await new Post(post).save();
   });
@@ -171,9 +185,9 @@ export default router => {
     if (post) {
       const user = await User.findById(me.id);
       // Filter, only friends
-      var comments = post.comments;
+      const comments = post.comments;
       var friends = user.friends;
-      // Add user id to friends array validation
+      // Bit to show comments of owner of post
       friends.push(user._id)
       // Response filter comments
       ctx.body = await comments.filter(function(comment) {
