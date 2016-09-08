@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
+import mongoosePaginate from 'mongoose-paginate';
 
-const Schema = mongoose.Schema
+var Schema = mongoose.Schema
 
 const User = new Schema({
 	name: String,
@@ -10,5 +11,8 @@ const User = new Schema({
   follows: Array,
 	friends: Array
 });
+
+// Plug in paginate
+User.plugin(mongoosePaginate);
 
 export default mongoose.model('User', User)

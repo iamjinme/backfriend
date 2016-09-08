@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
+import mongoosePaginate from 'mongoose-paginate';
 
-const Schema = mongoose.Schema
+var Schema = mongoose.Schema
 
 const Comments = new Schema({
   author: {
@@ -22,5 +23,8 @@ const Post = new Schema({
 	date: Date,
   comments: [Comments]
 });
+
+// Plug in paginate
+Post.plugin(mongoosePaginate);
 
 export default mongoose.model('Post', Post)
