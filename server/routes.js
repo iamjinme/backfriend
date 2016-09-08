@@ -48,10 +48,14 @@ export default router => {
   // GET All users
   router.get('/user', async(ctx) =>
     ctx.body = await User.find());
+    // Or user paginate middleware
+    // ctx.body = ctx.request.paginate.docs);
 
   // POST Follow user
   router.post('/user/:id/follow', async(ctx) => {
+    // Get token
     var token = ctx.headers.authorization.replace('Bearer ','');
+    // Decode user
     var me = jwt.decode(token);
     const follow = await User.findById(ctx.params.id);
     if (follow) {
